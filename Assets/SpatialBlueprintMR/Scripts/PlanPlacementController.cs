@@ -62,16 +62,6 @@ namespace SpatialBlueprintMR
                 return;
             }
 
-            var move = new Vector3(
-                (keyboard.rightArrowKey.isPressed ? 1f : 0f) - (keyboard.leftArrowKey.isPressed ? 1f : 0f),
-                0f,
-                (keyboard.upArrowKey.isPressed ? 1f : 0f) - (keyboard.downArrowKey.isPressed ? 1f : 0f));
-            if (move.sqrMagnitude > 1f)
-            {
-                move.Normalize();
-            }
-            NudgeFromCamera(move * (nudgeSpeedMetresPerSecond * Time.deltaTime));
-
             if (keyboard.qKey.isPressed) Rotate(-turnSpeedDegreesPerSecond * Time.deltaTime);
             if (keyboard.eKey.isPressed) Rotate(turnSpeedDegreesPerSecond * Time.deltaTime);
             if (keyboard.pageUpKey.isPressed) Raise(nudgeSpeedMetresPerSecond * Time.deltaTime);
@@ -87,28 +77,6 @@ namespace SpatialBlueprintMR
             {
                 transform.position += transform.TransformDirection(localMetres);
             }
-        }
-
-        /// <summary>Moves the plan in screen-relative directions for the desktop preview.</summary>
-        private void NudgeFromCamera(Vector3 cameraRelativeMetres)
-        {
-            var view = Camera.main;
-            if (view == null)
-            {
-                transform.position += cameraRelativeMetres;
-                return;
-            }
-
-            var forward = Vector3.ProjectOnPlane(view.transform.forward, Vector3.up);
-            if (forward.sqrMagnitude < 0.0001f)
-            {
-                transform.position += cameraRelativeMetres;
-                return;
-            }
-
-            forward.Normalize();
-            var right = Vector3.Cross(Vector3.up, forward).normalized;
-            transform.position += right * cameraRelativeMetres.x + forward * cameraRelativeMetres.z + Vector3.up * cameraRelativeMetres.y;
         }
 
         public void Rotate(float degreesAroundUp)
@@ -182,3 +150,4 @@ namespace SpatialBlueprintMR
         private string PlacementPath => Path.Combine(Application.persistentDataPath, "spatial-blueprint-placement.json");
     }
 }
+

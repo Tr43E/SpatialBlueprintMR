@@ -28,7 +28,7 @@ The sample uses feet (one DXF unit equals one foot), so its wall geometry is cre
 
 The imported root is already 1:1 when its DXF units are correct. If a drawing's scale is wrong, call `Calibrate(referenceLengthInDrawingUnits, measuredLengthInMetres)` on `PlanPlacementController`; the script applies a uniform correction factor. It also exposes `Nudge`, `Rotate`, `Raise`, `LockPlacement`, and `UnlockPlacement`, so XR buttons or hand gestures can call those methods directly.
 
-In Editor/desktop simulation, use the arrow keys to move the plan, `Q`/`E` to rotate it, `Page Up`/`Page Down` to raise/lower it, brackets to adjust scale, `L` to lock/unlock it, and `P` to save its placement. Arrow movement is camera-relative, so it remains consistent after the blueprint has been rotated. These controls are only a development fallback; a production headset build should call the same public methods from XR grab and UI actions.
+In Editor/desktop simulation, use `W`/`A`/`S`/`D` to move the camera, hold the right mouse button and drag to look around, and press `B` for a bird's-eye view of the imported layout. Press `B` again to return to the previous viewpoint. `Q`/`E` rotate the plan, `Page Up`/`Page Down` raise/lower it, brackets adjust scale, `L` locks/unlocks it, and `P` saves placement. Press `Esc` or select **Exit demo** to stop Play mode in the Editor or close a Windows build. These controls are a development fallback; a production headset build should call the same public methods from XR grab and UI actions.
 
 ## Import interface
 
@@ -43,6 +43,10 @@ The project does not read native `.dwg` files directly. In AutoCAD, export the d
 - Made the starter scene load `SampleStudio.dxf` automatically when no default plan has been assigned.
 - Changed desktop placement controls from blueprint-relative to camera-relative movement, preventing inverted movement after rotation.
 - Added the in-app CAD import panel and the `Import DXF into Current Scene…` Editor command.
+
+## Sharing a Windows build
+
+Choose **Tools > Spatial Blueprint MR > Build Windows Release** in Unity. It builds a self-contained Windows app and creates a timestamped ZIP under `Builds`. Share that ZIP with testers: they only need to unzip it and run `SpatialBlueprintMR.exe`; Unity is not required. The build includes the Studio, one-bedroom apartment, and small-office DXF samples.
 
 ## Recommended next milestones
 

@@ -9,8 +9,6 @@ namespace SpatialBlueprintMR.Editor
 {
     public static class SpatialBlueprintMenu
     {
-        private const string SamplePlanPath = "Assets/StreamingAssets/SampleStudio.dxf";
-
         [MenuItem("Tools/Spatial Blueprint MR/Create Unity 6 Starter Scene")]
         public static void CreateStarterScene()
         {
@@ -29,12 +27,14 @@ namespace SpatialBlueprintMR.Editor
             cameraComponent.clearFlags = CameraClearFlags.Skybox;
             camera.transform.position = new Vector3(2.5f, 2.1f, -3.5f);
             camera.transform.LookAt(new Vector3(1.5f, 1f, 1.5f));
+            camera.AddComponent<DesktopPreviewCameraController>();
 
             var blueprintRoot = new GameObject("BlueprintRoot");
             blueprintRoot.AddComponent<BlueprintModel>();
             var importer = blueprintRoot.AddComponent<DxfBlueprintImporter>();
             blueprintRoot.AddComponent<PlanPlacementController>();
             blueprintRoot.AddComponent<BlueprintDemoBootstrapper>();
+            blueprintRoot.AddComponent<BlueprintImportPanel>();
 
             var floor = GameObject.CreatePrimitive(PrimitiveType.Plane);
             floor.name = "Reference Floor (remove for headset build)";
@@ -47,8 +47,8 @@ namespace SpatialBlueprintMR.Editor
             Debug.Log("Starter scene created. Save it, then press Play to preview the imported plan.");
         }
 
-        [MenuItem("Tools/Spatial Blueprint MR/Copy DXF into Project…")]
-        public static void CopyDxfIntoProject()
+        [MenuItem("Tools/Spatial Blueprint MR/Import DXF into Current Scene…")]
+        public static void ImportDxfIntoCurrentScene()
         {
             var source = EditorUtility.OpenFilePanel("Choose an ASCII DXF floor plan", string.Empty, "dxf");
             if (string.IsNullOrWhiteSpace(source))
@@ -56,12 +56,25 @@ namespace SpatialBlueprintMR.Editor
                 return;
             }
 
-            var destinationFolder = Path.Combine(Application.dataPath, "StreamingAssets", "Imported");
-            Directory.CreateDirectory(destinationFolder);
-            var destination = Path.Combine(destinationFolder, Path.GetFileName(source));
-            File.Copy(source, destination, true);
-            AssetDatabase.Refresh();
-            Debug.Log($"Copied DXF to {destination}. Assign it to Default Plan on BlueprintRoot, then press Play.");
+            var importer = Selection.activeGameObject != null ? Selection.activeGameObject.GetComponent<DxfBlueprintImporter>() : null;
+            if (importer == null)
+            {
+                importer = Object.FindFirstObjectByType<DxfBlueprintImporter>();
+            }
+            if (importer == null)
+            {
+                var blueprintRoot = new GameObject("BlueprintRoot");
+                blueprintRoot.AddComponent<BlueprintModel>();
+                importer = blueprintRoot.AddComponent<DxfBlueprintImporter>();
+                blueprintRoot.AddComponent<PlanPlacementController>();
+                blueprintRoot.AddComponent<BlueprintImportPanel>();
+            }
+
+            importer.LoadFromPath(source);
+            Selection.activeGameObject = importer.gameObject;
+            EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
+            Debug.Log($"Built room geometry from {Path.GetFileName(source)}.");
         }
     }
 }
+

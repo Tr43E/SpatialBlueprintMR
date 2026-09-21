@@ -52,6 +52,34 @@ namespace SpatialBlueprintMR
             WallCount = 0;
         }
 
+        /// <summary>Returns the world-space bounds of the generated wall layout for camera framing.</summary>
+        public bool TryGetLayoutBounds(out Bounds bounds)
+        {
+            if (_walls == null || _walls.childCount == 0)
+            {
+                bounds = default;
+                return false;
+            }
+
+            var firstRenderer = _walls.GetChild(0).GetComponent<Renderer>();
+            if (firstRenderer == null)
+            {
+                bounds = default;
+                return false;
+            }
+
+            bounds = firstRenderer.bounds;
+            for (var i = 1; i < _walls.childCount; i++)
+            {
+                var renderer = _walls.GetChild(i).GetComponent<Renderer>();
+                if (renderer != null)
+                {
+                    bounds.Encapsulate(renderer.bounds);
+                }
+            }
+            return true;
+        }
+
         private void CreateWall(CadSegment segment)
         {
             var start = segment.Start.ToUnity(MetresPerCadUnit);
@@ -107,3 +135,4 @@ namespace SpatialBlueprintMR
         }
     }
 }
+
