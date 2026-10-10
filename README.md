@@ -2,6 +2,10 @@
 
 An initial Unity prototype for placing an architectural floor plan into a room at life size. It imports **ASCII DXF** drawings, identifies wall layers, renders them as walk-through 3D walls, and lets the user calibrate and position the plan.
 
+## Visual demo
+
+[Watch or download the visual walkthrough (MP4, 132 MB)](https://github.com/Tr43E/SpatialBlueprintMR/releases/download/v0.1.0/Screen.Recording.2026-10-10.163058.mp4)
+
 ## What this first version does
 
 - Parses DXF `LINE`, `LWPOLYLINE`, and legacy `POLYLINE` entities.
