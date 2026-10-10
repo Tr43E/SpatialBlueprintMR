@@ -116,6 +116,15 @@ namespace SpatialBlueprintMR
             }
         }
 
+        /// <summary>Resets placement so an imported layout starts centred on the room origin at 1:1 scale.</summary>
+        public void CenterNewLayout()
+        {
+            IsLocked = false;
+            CalibrationFactor = 1f;
+            transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+            transform.localScale = Vector3.one;
+        }
+
         public void LockPlacement() => IsLocked = true;
         public void UnlockPlacement() => IsLocked = false;
         public void ToggleLock() => IsLocked = !IsLocked;

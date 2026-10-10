@@ -1,6 +1,6 @@
 # Import-ready DXF samples
 
-Both drawings use feet (`$INSUNITS = 2`) and put every structural line on the `WALLS` layer, so Spatial Blueprint MR will select and build them automatically.
+All drawings use feet (`$INSUNITS = 2`) and put every structural line on the `WALLS` layer, so Spatial Blueprint MR will select and build them automatically. Each template includes a passable exterior entry and interior doorways on `DOORS` or `A-DOOR` layers.
 
 - `OneBedroomApartment.dxf` — 36 ft × 26 ft one-bedroom apartment with a bedroom, bathroom, and closet division.
 - `SmallOfficeSuite.dxf` — 48 ft × 32 ft office suite with a reception area, conference room, and two enclosed offices.

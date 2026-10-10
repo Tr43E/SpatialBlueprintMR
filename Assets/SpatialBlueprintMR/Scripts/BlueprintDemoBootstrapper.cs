@@ -29,6 +29,10 @@ namespace SpatialBlueprintMR
                 {
                     _cameraControls = previewCamera.gameObject.AddComponent<DesktopPreviewCameraController>();
                 }
+                if (previewCamera.GetComponent<RealtimeMeasurementOverlay>() == null)
+                {
+                    previewCamera.gameObject.AddComponent<RealtimeMeasurementOverlay>();
+                }
             }
         }
 
@@ -55,10 +59,10 @@ namespace SpatialBlueprintMR
         private void OnGUI()
         {
             GUI.Box(new Rect(16, 16, 450, 178), "Spatial Blueprint MR — desktop placement preview");
-            GUI.Label(new Rect(30, 45, 420, 22), "W / A / S / D: move camera   Right-click + drag: look around");
-            GUI.Label(new Rect(30, 68, 420, 22), "Q / E: rotate plan   [ / ]: scale   B: bird's-eye view");
+            GUI.Label(new Rect(30, 45, 420, 22), "W / A / S / D: move camera (collides)   Right-click + drag: look around");
+            GUI.Label(new Rect(30, 68, 420, 22), "Q / E: rotate plan   [ / ]: scale   B: bird's-eye   M: measurements");
             GUI.Label(new Rect(30, 91, 420, 22), $"Status: {(_placement.IsLocked ? "locked" : "editing")} | scale {(_placement.CalibrationFactor * 100f):F1}%");
-            GUI.Label(new Rect(30, 114, 420, 22), _importer.LastError ?? $"Walls: {_model.WallCount}");
+            GUI.Label(new Rect(30, 114, 420, 22), _importer.LastError ?? $"Walls: {_model.WallCount} | doorways: {_model.DoorCount}");
             if (_cameraControls != null && GUI.Button(new Rect(30, 145, 198, 30), _cameraControls.IsBirdsEyeView ? "Return to scene view (B)" : "Bird's-eye view (B)"))
             {
                 _cameraControls.ToggleBirdsEyeView(_model);

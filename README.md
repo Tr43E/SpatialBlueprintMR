@@ -6,13 +6,16 @@ An initial Unity prototype for placing an architectural floor plan into a room a
 
 [Watch or download the visual walkthrough (MP4, 132 MB)](https://github.com/Tr43E/SpatialBlueprintMR/releases/download/v0.1.0/Screen.Recording.2026-10-10.163058.mp4)
 
+[Download the latest Windows build (ZIP)](https://github.com/Tr43E/SpatialBlueprintMR/releases/latest)
+
 ## What this first version does
 
 - Parses DXF `LINE`, `LWPOLYLINE`, and legacy `POLYLINE` entities.
 - Reads common DXF drawing units (`$INSUNITS`) and converts the drawing to Unity metres.
 - Prefers layers whose name contains `WALL`; if none are found, it renders every supported line entity.
-- Extrudes the imported wall centre lines into wall meshes with colliders.
-- Supports manual placement, rotation, height, locking, calibration, and local persistence.
+- Extrudes wall centre lines into solid 3D meshes with colliders, while `DOOR`/`A-DOOR` layers become passable doorways.
+- Centers each newly imported layout, then supports manual placement, rotation, height, locking, calibration, and local persistence.
+- Shows live width and length dimensions in bird’s-eye view, plus walkthrough clearance measurements.
 - Includes a desktop CAD-import panel and an Editor file-picker workflow.
 - Runs in the Unity Editor first, then can be connected to OpenXR hand/controller interaction for a headset build.
 
@@ -32,7 +35,7 @@ The sample uses feet (one DXF unit equals one foot), so its wall geometry is cre
 
 The imported root is already 1:1 when its DXF units are correct. If a drawing's scale is wrong, call `Calibrate(referenceLengthInDrawingUnits, measuredLengthInMetres)` on `PlanPlacementController`; the script applies a uniform correction factor. It also exposes `Nudge`, `Rotate`, `Raise`, `LockPlacement`, and `UnlockPlacement`, so XR buttons or hand gestures can call those methods directly.
 
-In Editor/desktop simulation, use `W`/`A`/`S`/`D` to move the camera, hold the right mouse button and drag to look around, and press `B` for a bird's-eye view of the imported layout. Press `B` again to return to the previous viewpoint. `Q`/`E` rotate the plan, `Page Up`/`Page Down` raise/lower it, brackets adjust scale, `L` locks/unlocks it, and `P` saves placement. Press `Esc` or select **Exit demo** to stop Play mode in the Editor or close a Windows build. These controls are a development fallback; a production headset build should call the same public methods from XR grab and UI actions.
+In Editor/desktop simulation, use `W`/`A`/`S`/`D` to move the camera, hold the right mouse button and drag to look around, and press `B` for a bird's-eye view of the imported layout. Press `B` again to return to the previous viewpoint. Press `M` to show or hide live measurements. `Q`/`E` rotate the plan, `Page Up`/`Page Down` raise/lower it, brackets adjust scale, `L` locks/unlocks it, and `P` saves placement. Press `Esc` or select **Exit demo** to stop Play mode in the Editor or close a Windows build. These controls are a development fallback; a production headset build should call the same public methods from XR grab and UI actions.
 
 ## Import interface
 
@@ -47,6 +50,9 @@ The project does not read native `.dwg` files directly. In AutoCAD, export the d
 - Made the starter scene load `SampleStudio.dxf` automatically when no default plan has been assigned.
 - Changed desktop placement controls from blueprint-relative to camera-relative movement, preventing inverted movement after rotation.
 - Added the in-app CAD import panel and the `Import DXF into Current Scene…` Editor command.
+- Added solid wall collisions, visual-only doorways on `DOOR`/`A-DOOR` layers, and centered layouts after import.
+- Added `B` bird’s-eye navigation and an `M` measurement toggle with readable width/length guides and walkthrough clearance.
+- Updated all bundled DXF templates with passable doorways so layouts remain explorable when collisions are enabled.
 
 ## Sharing a Windows build
 

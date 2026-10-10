@@ -12,6 +12,12 @@ namespace SpatialBlueprintMR
         [SerializeField, Min(0.01f)] private float mouseLookSensitivity = 0.12f;
         [SerializeField, Range(-89f, 0f)] private float minimumPitchDegrees = -80f;
         [SerializeField, Range(0f, 89f)] private float maximumPitchDegrees = 80f;
+        [Header("Collisions")]
+        [Tooltip("Prevents the desktop camera from moving through generated walls and other colliders.")]
+        [SerializeField] private bool collisionsEnabled = true;
+        [SerializeField, Min(0.01f)] private float collisionRadiusMetres = 0.2f;
+        [SerializeField, Min(0f)] private float collisionSkinMetres = 0.02f;
+        [SerializeField] private LayerMask collisionLayers = Physics.DefaultRaycastLayers;
 
         public bool IsBirdsEyeView { get; private set; }
 
@@ -68,7 +74,7 @@ namespace SpatialBlueprintMR
 
             var right = Vector3.Cross(Vector3.up, forward).normalized;
             var displacement = (right * input.x + forward * input.y) * (movementSpeedMetresPerSecond * Time.deltaTime);
-            transform.position += displacement;
+            MoveWithCollisions(displacement);
         }
 
         private void HandleMouseLook()
@@ -114,6 +120,28 @@ namespace SpatialBlueprintMR
             var angles = transform.eulerAngles;
             _yawDegrees = angles.y;
             _pitchDegrees = angles.x > 180f ? angles.x - 360f : angles.x;
+        }
+
+        private void MoveWithCollisions(Vector3 displacement)
+        {
+            var distance = displacement.magnitude;
+            if (!collisionsEnabled || distance < 0.0001f)
+            {
+                transform.position += displacement;
+                return;
+            }
+
+            var direction = displacement / distance;
+            var castDistance = distance + collisionSkinMetres;
+            if (Physics.SphereCast(transform.position, collisionRadiusMetres, direction, out var hit, castDistance,
+                    collisionLayers, QueryTriggerInteraction.Ignore))
+            {
+                var safeDistance = Mathf.Max(0f, hit.distance - collisionSkinMetres);
+                transform.position += direction * safeDistance;
+                return;
+            }
+
+            transform.position += displacement;
         }
 
         /// <summary>Frames the generated plan from above, or restores the camera's prior scene view.</summary>

@@ -35,7 +35,7 @@ namespace SpatialBlueprintMR
 
             var panel = new Rect(Screen.width - 436, 16, 420, 326);
             GUI.Box(panel, "Build a room from CAD");
-            GUI.Label(new Rect(panel.x + 16, panel.y + 34, 385, 40), "Paste the full path to an ASCII .dxf floor plan.\nThe importer creates 1:1 3D walls from matching wall layers.");
+            GUI.Label(new Rect(panel.x + 16, panel.y + 34, 385, 40), "Paste the full path to an ASCII .dxf floor plan.\nNew layouts are centred and create solid 1:1 3D walls.");
             GUI.Label(new Rect(panel.x + 16, panel.y + 82, 120, 22), "Blueprint file");
             _filePath = GUI.TextField(new Rect(panel.x + 16, panel.y + 105, 388, 24), _filePath ?? string.Empty);
 
@@ -55,7 +55,6 @@ namespace SpatialBlueprintMR
             {
                 LoadStreamingSample("SmallOfficeSuite.dxf", "small office suite");
             }
-
             GUI.Label(new Rect(panel.x + 16, panel.y + 218, 388, 20), BuildStatus());
             GUI.Label(new Rect(panel.x + 16, panel.y + 241, 388, 42), _message ?? "Tip: paste a full .dxf path, or use one of the included plans above.");
 

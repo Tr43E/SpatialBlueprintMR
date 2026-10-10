@@ -18,6 +18,9 @@ namespace SpatialBlueprintMR
         [Tooltip("When matching layers are present, only these layers are treated as walls.")]
         [SerializeField] private string[] wallLayerKeywords = { "WALL", "A-WALL", "WALLS" };
         [SerializeField] private bool renderAllLayersWhenNoWallLayerExists = true;
+        [Header("Door layer filter")]
+        [Tooltip("Linework on these layers is shown as open door leaves without blocking the doorway.")]
+        [SerializeField] private string[] doorwayLayerKeywords = { "DOOR", "A-DOOR", "DOORS" };
 
         public CadFloorPlan CurrentPlan { get; private set; }
         public string LastError { get; private set; }
@@ -25,10 +28,12 @@ namespace SpatialBlueprintMR
         public event Action<CadFloorPlan> PlanLoaded;
 
         private BlueprintModel _model;
+        private PlanPlacementController _placement;
 
         private void Awake()
         {
             _model = GetComponent<BlueprintModel>();
+            _placement = GetComponent<PlanPlacementController>();
         }
 
         public void LoadDefaultPlan()
@@ -63,10 +68,12 @@ namespace SpatialBlueprintMR
             try
             {
                 CurrentPlan = DxfFloorPlanParser.Parse(dxfText, fallbackUnits);
-                var segments = SelectWallSegments(CurrentPlan).ToList();
-                _model.Build(segments, CadFloorPlan.MetresPerUnit(CurrentPlan.Units));
+                var wallSegments = SelectWallSegments(CurrentPlan).ToList();
+                var doorwaySegments = SelectDoorwaySegments(CurrentPlan).ToList();
+                _model.Build(wallSegments, doorwaySegments, CadFloorPlan.MetresPerUnit(CurrentPlan.Units));
+                _placement?.CenterNewLayout();
                 LastError = null;
-                Debug.Log($"Imported {sourceName}: {segments.Count} wall segments, {CurrentPlan.Units}.", this);
+                Debug.Log($"Imported {sourceName}: {wallSegments.Count} wall segments and {doorwaySegments.Count} doorways, {CurrentPlan.Units}, centred at the room origin.", this);
                 PlanLoaded?.Invoke(CurrentPlan);
             }
             catch (Exception exception)
@@ -81,7 +88,7 @@ namespace SpatialBlueprintMR
             var matchingLayers = new HashSet<string>(plan.Layers.Where(IsWallLayer), StringComparer.OrdinalIgnoreCase);
             if (matchingLayers.Count == 0 && renderAllLayersWhenNoWallLayerExists)
             {
-                return plan.Segments;
+                return plan.Segments.Where(segment => !IsDoorwayLayer(segment.Layer));
             }
             return plan.Segments.Where(segment => matchingLayers.Contains(segment.Layer));
         }
@@ -89,6 +96,17 @@ namespace SpatialBlueprintMR
         private bool IsWallLayer(string layer)
         {
             return wallLayerKeywords.Any(keyword => !string.IsNullOrWhiteSpace(keyword) && layer.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0);
+        }
+
+        private IEnumerable<CadSegment> SelectDoorwaySegments(CadFloorPlan plan)
+        {
+            return plan.Segments.Where(segment => IsDoorwayLayer(segment.Layer));
+        }
+
+        private bool IsDoorwayLayer(string layer)
+        {
+            return doorwayLayerKeywords.Any(keyword =>
+                !string.IsNullOrWhiteSpace(keyword) && layer.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0);
         }
     }
 }
